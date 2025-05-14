@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost
--- Generation Time: May 13, 2025 at 06:08 PM
+-- Host: 127.0.0.1
+-- Generation Time: May 14, 2025 at 04:48 AM
 -- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- PHP Version: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -58,7 +58,7 @@ CREATE TABLE `pending_requests` (
   `sample_id` varchar(50) NOT NULL,
   `full_name` varchar(100) NOT NULL,
   `station` varchar(50) NOT NULL,
-  `station_ward` varchar(100) NOT NULL,
+  `station_ward` varchar(100) DEFAULT NULL,
   `gender` enum('MALE','FEMALE') NOT NULL,
   `age` int(11) NOT NULL,
   `birth_date` date NOT NULL,
@@ -69,15 +69,18 @@ CREATE TABLE `pending_requests` (
   `requested_by` varchar(50) NOT NULL,
   `processed_by` varchar(50) DEFAULT NULL,
   `processed_at` datetime DEFAULT NULL,
-  `reject_reason` text DEFAULT NULL
+  `reject_reason` text DEFAULT NULL,
+  `urgency` varchar(255) NOT NULL,
+  `payment_status` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `pending_requests`
 --
 
-INSERT INTO `pending_requests` (`id`, `date`, `patient_id`, `sample_id`, `full_name`, `station`, `station_ward`, `gender`, `age`, `birth_date`, `test_name`, `clinical_info`, `physician`, `status`, `requested_by`, `processed_by`, `processed_at`, `reject_reason`) VALUES
-(1, '2025-05-13 11:31:53', 1, 'SMP-001', 'ORTEGA, JELLO', 'Lab', 'General Ward', 'MALE', 23, '2002-01-15', 'Blood Test', NULL, NULL, 'Approved', 'admin', NULL, NULL, NULL);
+INSERT INTO `pending_requests` (`id`, `date`, `patient_id`, `sample_id`, `full_name`, `station`, `station_ward`, `gender`, `age`, `birth_date`, `test_name`, `clinical_info`, `physician`, `status`, `requested_by`, `processed_by`, `processed_at`, `reject_reason`, `urgency`, `payment_status`) VALUES
+(1, '2025-05-13 11:31:53', 1, 'SMP-001', 'ORTEGA, JELLO', 'Lab', 'General Ward', 'MALE', 23, '2002-01-15', 'Blood Test', NULL, NULL, 'Rejected', 'admin', '1', '2025-05-14 09:41:27', 'wala lang', '', ''),
+(2, '2025-05-14 09:27:37', 2, 'LAB-788206', 'MADRID, FRANCE PAUL', 'Lab', NULL, 'MALE', 24, '2001-07-10', 'CBC', 'N/A', 'N/A', 'Approved', 'admin', '1', '2025-05-14 09:33:30', NULL, 'Urgent', 'Unpaid');
 
 -- --------------------------------------------------------
 
@@ -123,6 +126,13 @@ CREATE TABLE `rejected_requests` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `rejected_requests`
+--
+
+INSERT INTO `rejected_requests` (`id`, `request_id`, `patient_id`, `sample_id`, `rejection_reason`, `rejected_by`, `rejected_at`, `created_at`) VALUES
+(1, 1, 1, 'SMP-001', 'wala lang', 'admin', '2025-05-14 09:41:27', '2025-05-14 01:41:27');
+
 -- --------------------------------------------------------
 
 --
@@ -152,7 +162,7 @@ CREATE TABLE `request_list` (
 --
 
 INSERT INTO `request_list` (`id`, `patient_id`, `sample_id`, `patient_name`, `station_ward`, `gender`, `age`, `birth_date`, `request_date`, `test_name`, `clinical_info`, `physician`, `status`, `created_at`, `updated_at`) VALUES
-(1, 1, 'SMP-001', 'ORTEGA, JELLO', 'Lab', 'MALE', 23, '2002-01-15', '2025-05-13 11:31:53', 'Blood Test', NULL, NULL, 'Approved', '2025-05-13 16:05:10', '2025-05-13 16:05:10');
+(2, 2, 'LAB-788206', 'MADRID, FRANCE PAUL', 'Lab', 'MALE', 24, '2001-07-10', '2025-05-14 09:27:37', 'CBC', 'N/A', 'N/A', 'Completed', '2025-05-14 01:33:30', '2025-05-14 01:38:26');
 
 -- --------------------------------------------------------
 
@@ -188,8 +198,9 @@ INSERT INTO `test_records` (`id`, `test_name`, `patient_name`, `patient_id`, `sa
 (5, 'Urinalysis', 'MADRID, FRANCE PAUL', 2, 'LAB-570659', 'Clinical Microscopy', '2025-05-05 23:51:50', 'Color: Yellow, Transparency: Clear, pH: 6.0, Protein: Negative, Glucose: Negative', 'Completed', NULL, NULL, '2025-05-13 15:51:50', '2025-05-13 15:51:50'),
 (6, 'Urinalysis', 'test', 3, 'LAB-816904', 'Clinical Microscopy', '2025-05-09 23:51:50', 'Color: Yellow, Transparency: Clear, pH: 6.0, Protein: Negative, Glucose: Negative', 'Completed', NULL, NULL, '2025-05-13 15:51:50', '2025-05-13 15:51:50'),
 (7, 'Blood Chemistry', 'ORTEGA, JELLO', 1, 'LAB-485237', 'Chemistry', '2025-04-24 23:51:50', 'Glucose: 90 mg/dL, Creatinine: 0.9 mg/dL, BUN: 15 mg/dL, Uric Acid: 5.5 mg/dL', 'Pending', NULL, NULL, '2025-05-13 15:51:50', '2025-05-13 15:51:50'),
-(8, 'Blood Chemistry', 'MADRID, FRANCE PAUL', 2, 'LAB-967381', 'Chemistry', '2025-04-17 23:51:50', 'Glucose: 90 mg/dL, Creatinine: 0.9 mg/dL, BUN: 15 mg/dL, Uric Acid: 5.5 mg/dL', 'Pending', NULL, NULL, '2025-05-13 15:51:50', '2025-05-13 15:51:50'),
-(9, 'Blood Chemistry', 'test', 3, 'LAB-513111', 'Chemistry', '2025-04-23 23:51:50', 'Glucose: 90 mg/dL, Creatinine: 0.9 mg/dL, BUN: 15 mg/dL, Uric Acid: 5.5 mg/dL', 'Pending', NULL, NULL, '2025-05-13 15:51:50', '2025-05-13 15:51:50');
+(8, 'Blood Chemistry', 'MADRID, FRANCE PAUL', 2, 'LAB-967381', 'Chemistry', '2025-04-17 23:51:50', 'Glucose: 90, Creatinine: 0.9, Bun: 15, Uric_acid: 5.5, Cholesterol: 190, Triglycerides: 140', 'In Progress', 'Goods', 'admin', '2025-05-13 15:51:50', '2025-05-14 01:43:33'),
+(9, 'Blood Chemistry', 'test', 3, 'LAB-513111', 'Chemistry', '2025-04-23 23:51:50', 'Glucose: 90 mg/dL, Creatinine: 0.9 mg/dL, BUN: 15 mg/dL, Uric Acid: 5.5 mg/dL', 'Pending', NULL, NULL, '2025-05-13 15:51:50', '2025-05-13 15:51:50'),
+(10, 'CBC', 'MADRID, FRANCE PAUL', 2, 'LAB-788206', 'Hematology', '2025-05-14 09:38:26', 'Wbc: 5, Rbc: 4.9, Hgb: 14.2, Hct: 45, Plt: 180, Mcv: 92', 'Completed', 'All goods', 'admin', '2025-05-14 01:38:26', '2025-05-14 01:38:26');
 
 -- --------------------------------------------------------
 
@@ -233,15 +244,17 @@ CREATE TABLE `users` (
   `id` int(11) NOT NULL,
   `username` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `role` enum('admin','staff') DEFAULT 'staff'
+  `role` enum('admin','staff') DEFAULT 'staff',
+  `remember_token` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `password`, `role`) VALUES
-(1, 'admin', 'password', 'admin');
+INSERT INTO `users` (`id`, `username`, `password`, `role`, `remember_token`) VALUES
+(1, 'admin', 'password', 'admin', 'a6ee3fe5f8e02eeb5c81e1d7bc9afa081582a47db9efe93eedc72a26dfe27ee8'),
+(2, 'staff', 'password', 'staff', '0d5ecb6ec712e4faeccc51725aa4f8b3d7e3d2eda547923b2010912c9ce89645');
 
 --
 -- Indexes for dumped tables
@@ -319,7 +332,7 @@ ALTER TABLE `patients`
 -- AUTO_INCREMENT for table `pending_requests`
 --
 ALTER TABLE `pending_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `reagent_consumption`
@@ -331,19 +344,19 @@ ALTER TABLE `reagent_consumption`
 -- AUTO_INCREMENT for table `rejected_requests`
 --
 ALTER TABLE `rejected_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `request_list`
 --
 ALTER TABLE `request_list`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `test_records`
 --
 ALTER TABLE `test_records`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `test_results`
@@ -355,7 +368,7 @@ ALTER TABLE `test_results`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Constraints for dumped tables
